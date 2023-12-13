@@ -1,7 +1,10 @@
 function connect() {
-  let username = document.getElementById("username")?.value?.trim()?.toLowerCase();
+  let username = [document.getElementById("username")?.value?.toLowerCase().replaceAll(/\s/g, "")];
+  if (username[0].includes(",")) {
+    username = username[0].split(",");
+  }
 
-  if (!username) {
+  if (!username[0]) {
     return;
   }
 
@@ -18,7 +21,7 @@ function connect() {
       secure: true,
       reconnect: true,
     },
-    channels: [username],
+    channels: username,
   };
   let client = new tmi.client(options);
 

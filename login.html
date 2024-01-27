@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en" prefix="og: https://ogp.me/ns#">
+  <head>
+    <meta charset="utf-8" />
+    <title>donk.chat</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="donk.chat" />
+    <meta name="keywords" content="donk.chat" />
+    <meta property="og:title" content="donk.chat" />
+    <meta property="og:site_name" content="donk.chat" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://donk.chat/" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:description" content="donk.chat" />
+
+    <link rel="stylesheet" href="/css/donkchat.min.css" />
+
+    <style>
+      html,
+      body {
+        margin: 10px;
+        height: 100%;
+        overflow: hidden;
+      }
+    </style>
+  </head>
+
+  <body>
+    <strong style="font-size: 2rem">You can close this window now :)</strong>
+
+    <script>
+      let url = window.location.href;
+      let access_token = url.match(/\#(?:access_token)\=([\S\s]*?)\&/)[1];
+      getUsername();
+
+      async function getUsername() {
+        let myHeaders = new Headers();
+        myHeaders.append("Authorization", "Bearer " + access_token);
+        myHeaders.append("Client-Id", "skclrgbpcxovmezvzpx8yelb3jpn6q");
+
+        let requestOptions = {
+          method: "GET",
+          headers: myHeaders,
+          redirect: "follow",
+        };
+
+        try {
+          let response = await fetch("https://api.twitch.tv/helix/users", requestOptions);
+          let result = await response.json();
+          console.log(result);
+          localStorage.setItem(
+            "LOGIN",
+            JSON.stringify({
+              userID: result.data[0].id,
+              username: result.data[0].login,
+              access_token: access_token,
+            })
+          );
+          window.close();
+        } catch (error) {
+          console.log("error", error);
+          window.close();
+        }
+      }
+    </script>
+  </body>
+</html>

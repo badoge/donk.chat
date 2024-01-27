@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: https://ogp.me/ns#" data-bs-theme="dark">
+<html lang="en" prefix="og: https://ogp.me/ns#">
   <head>
     <meta charset="utf-8" />
     <title>donk.chat</title>
@@ -19,8 +19,11 @@
     <script src="/js/donkchat.js" defer></script>
   </head>
   <body>
-    <input id="username" type="text" placeholder="username" />
-    <button id="connect" onclick="connect()">Connect</button>
+    <button id="login" onclick="login()">Login with Twitch</button>
+    <span id="loginInfo">Not logged in</span>
+    <br />
+    <input id="channel" type="text" placeholder="channel id" />
+    <button id="connect" onclick="eventsubSub()">Connect</button>
     <div id="chat"></div>
   </body>
 </html>

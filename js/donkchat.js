@@ -1,59 +1,111 @@
+let session_id;
+let chat = document.getElementById("chat");
 function connect() {
-  let username = [document.getElementById("username")?.value?.toLowerCase().replaceAll(/\s/g, "")];
-  if (username[0].includes(",")) {
-    username = username[0].split(",");
-  }
+  const socket = new WebSocket("wss://eventsub.wss.twitch.tv/ws");
 
-  if (!username[0]) {
+  socket.addEventListener("close", (event) => {
+    console.log("close");
+    console.log(event);
+  });
+
+  socket.addEventListener("error", (event) => {
+    console.log("error");
+    console.log(event);
+  });
+
+  socket.addEventListener("message", (event) => {
+    console.log("message");
+    let data = JSON.parse(event.data);
+    if (data?.metadata?.message_type == "session_welcome") {
+      session_id = data.payload.session.id;
+    }
+    console.log(data);
+
+    if (data?.metadata?.subscription_type == "channel.chat.message") {
+      chat.appendChild(document.createTextNode(`${data.payload.event.chatter_user_name}: ${data.payload.event.message.text}`));
+      chat.appendChild(document.createElement("br"));
+      chat.scrollIntoView(false);
+    }
+  });
+
+  socket.addEventListener("open", (event) => {
+    console.log("open");
+    console.log(event);
+  });
+}
+
+async function eventsubSub() {
+  if (!LOGIN?.access_token) {
+    return;
+  }
+  if (!document.getElementById("channel").value.trim()) {
     return;
   }
 
-  document.getElementById("username").style.display = "none";
+  document.getElementById("channel").style.display = "none";
   document.getElementById("connect").style.display = "none";
-  let chat = document.getElementById("chat");
 
-  let options = {
-    options: {
-      clientId: "skclrgbpcxovmezvzpx8yelb3jpn6q",
-      debug: false,
+  let myHeaders = new Headers();
+  myHeaders.append("Authorization", `Bearer ${LOGIN.access_token}`);
+  myHeaders.append("Client-Id", "skclrgbpcxovmezvzpx8yelb3jpn6q");
+  myHeaders.append("Content-Type", "application/json");
+
+  let body = JSON.stringify({
+    type: "channel.chat.message",
+    version: "1",
+    condition: {
+      broadcaster_user_id: document.getElementById("channel").value.trim(),
+      user_id: LOGIN.userID,
     },
-    connection: {
-      secure: true,
-      reconnect: true,
+    transport: {
+      method: "websocket",
+      session_id: session_id,
     },
-    channels: username,
+  });
+
+  let requestOptions = {
+    method: "POST",
+    headers: myHeaders,
+    body: body,
+
+    redirect: "follow",
   };
-  let client = new tmi.client(options);
 
-  client.on("message", async (target, context, msg, self) => {
-    chat.appendChild(document.createTextNode(`${context["display-name"]}: ${msg}`));
-    chat.appendChild(document.createElement("br"));
-    chat.scrollIntoView(false);
-  }); //message
-
-  client.on("timeout", (channel, username, reason, duration, userstate) => {
-    chat.appendChild(document.createTextNode(`${username} got timed out for ${duration}s`));
-    chat.appendChild(document.createElement("br"));
-    chat.scrollIntoView(false);
-  }); //timeout
-
-  client.on("connected", async (address, port) => {
-    chat.appendChild(document.createTextNode(`Connected to ${address}:${port}`));
-    chat.appendChild(document.createElement("br"));
-    chat.scrollIntoView(false);
-  }); //connected
-
-  client.on("disconnected", (reason) => {
-    chat.appendChild(document.createTextNode(`Disconnected: ${reason}`));
-    chat.appendChild(document.createElement("br"));
-    chat.scrollIntoView(false);
-  }); //disconnected
-
-  client.on("notice", (channel, msgid, message) => {
-    chat.appendChild(document.createTextNode(`Disconnected: ${channel} - ${msgid} - ${message}`));
-    chat.appendChild(document.createElement("br"));
-    chat.scrollIntoView(false);
-  }); //notice
-
-  client.connect().catch(console.error);
+  try {
+    let response = await fetch("https://api.twitch.tv/helix/eventsub/subscriptions", requestOptions);
+    let result = await response.json();
+    console.log(result);
+  } catch (error) {
+    console.log("error", error);
+  }
 }
+
+let LOGIN;
+
+function login() {
+  window.open("/prompt.html", "loginWindow", "toolbar=0,status=0,scrollbars=0,width=500px,height=800px");
+  return false;
+}
+
+function saveLogin() {
+  setTimeout(() => {
+    LOGIN = JSON.parse(localStorage.getItem("LOGIN"));
+    if (LOGIN) {
+      document.getElementById("login").style.display = "none";
+      document.getElementById("loginInfo").innerHTML = `Logged in as ${LOGIN.username}`;
+    }
+  }, 5000);
+}
+
+function loadLocalStorage() {
+  LOGIN = JSON.parse(localStorage.getItem("LOGIN"));
+  if (LOGIN) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("loginInfo").innerHTML = `Logged in as ${LOGIN.username}`;
+    connect();
+  }
+}
+
+window.onload = function () {
+  loadLocalStorage();
+};

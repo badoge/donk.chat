@@ -1,6 +1,7 @@
 {
   "name": "donkchat",
   "version": "0.0.1",
+  "private": true,
   "scripts": {
     "dev": "vite dev",
     "build": "vite build",
@@ -15,8 +16,6 @@
     "deploy": "npm run build && wrangler pages deploy"
   },
   "devDependencies": {
-    "@fontsource/fira-mono": "^4.5.10",
-    "@neoconfetti/svelte": "^1.0.0",
     "@playwright/test": "^1.28.1",
     "@sveltejs/adapter-auto": "^3.0.0",
     "@sveltejs/adapter-cloudflare": "^4.7.0",

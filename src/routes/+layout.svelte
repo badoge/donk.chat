@@ -1,6 +1,5 @@
 <script>
 	import '../app.css';
-	import TypcnPlus from '~icons/typcn/plus';
 </script>
 
 
@@ -16,7 +15,6 @@
 	</div>
 	<div class="navbar-end">
 
-		<button class="btn btn-primary text-xl"><TypcnPlus  />New chat room</button>
 
 	</div>
   </div>

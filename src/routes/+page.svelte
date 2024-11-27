@@ -1,6 +1,8 @@
 <script>
 	import TypcnPlus from '~icons/typcn/plus';
     import IonSettingsSharp from '~icons/ion/settings-sharp';
+
+
 </script>
 
 
@@ -87,13 +89,6 @@
 
 
 </div>
-
-
-
-
-
-
-
 
 
 

@@ -1,5 +1,6 @@
 <script>
-	export let data;
+  /** @type {{data: any}} */
+  let { data } = $props();
 </script>
 
 <div role="alert" class="alert alert-success mt-3">

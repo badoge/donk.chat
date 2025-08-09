@@ -1,3 +1,0 @@
-# donk.chat
-
-testing stuff :)
